@@ -1,19 +1,23 @@
 <html>
 	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Finding out the BPM of a song using Javascript</title>
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" type="text/css" href="style.css">
 	    <meta name="description" content="Demo of an algorithm to calculate tempo of a track using the Audio API, using the Spotify Web API to search for songs.">
 	    <meta name="twitter:card" content="summary">
 	    <meta name="twitter:site" content="@jmperezperez">
 	    <meta name="twitter:title" content="Finding out the BPM of a song on a browser">
 	    <meta name="twitter:description" content="Demo of an algorithm to calculate tempo of a track using the Audio API, using the Spotify Web API to search for songs.">
+	    <link rel="author" href="https://plus.google.com/107456024651797783420" />
 		</head>
 	<body>
-		<script type="text/javascript">
+		<!--<script type="text/javascript">
     var _gaq=_gaq||[];_gaq.push(["_setAccount","UA-39254352-1"]);_gaq.push(["_trackPageview"]);(function(){var a=document.createElement("script");a.type="text/javascript";a.async=!0;a.src="http://www.google-analytics.com/ga.js";var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b)})()
-    </script>
+    </script>-->
 		<h1>Calculating BPM using Javascript and the Spotify Web API</h1>
-		<p>This demo uses the browser's Audio API to determine the tempo of a song, processing a chunk of 30 seconds of a song. For more information, read the blog post <a href="http://tech.beatport.com/2014/web-audio/beat-detection-using-web-audio/">Beat Detection Using JavaScript and the Web Audio API</a>, from where I've taken the code to perform the track analysis.</p>
+		<p>This demo uses the browser's <strong>Audio API</strong> to determine the tempo of a song, processing a chunk of 30 seconds of a song.</p>
+		<p>For more information, read the blog post <a href="http://tech.beatport.com/2014/web-audio/beat-detection-using-web-audio/">Beat Detection Using JavaScript and the Web Audio API</a>, from where I've taken the code to perform the track analysis.</p>
 		<form>
 			<input type="text" id="query" placeholder="Type the name of a track (e.g. Salsa Tequila)">
 			<input type="submit" value="Search track &amp; Calculate tempo">
@@ -38,10 +42,34 @@
 			<li>Count intervals between peaks</li>
 			<li>Group them</li>
 		</ol>
-		<hr />
 		<footer>
-			This project uses the <a href="https://developer.spotify.com/web-api/">Spotify Web API</a> and the <a href="http://developer.echonest.com/docs/v4">Echo Nest API</a>.<br/>
-			<a href="https://github.com/JMPerez/beats-audio-api">Check the code on GitHub</a> - <a href="https://twitter.com/jmperezperez">@jmperezperez</a> - <a href="http://jmperezperez.com">jmperezperez.com</a>
+			<h3>APIs used</h3>
+			<p>This project uses these public APIs:</p>
+			<ul>
+				<li><a href="https://developer.spotify.com/web-api/">Spotify Web API</a></li>
+				<li><a href="http://developer.echonest.com/docs/v4">Echo Nest API</a></li>
+			</ul>
+			<p>You can <a href="https://github.com/JMPerez/beats-audio-api">check out the code on GitHub</a>.</p>
+		</footer>
+		<footer class="about">
+			<h3>About me</h3>
+			<div class="media">
+				<div class="img">
+					<img src="http://jmperezperez.com/assets/images/jmperez.jpg" class="avatar-image" title="José M. Pérez">
+				</div>
+				<div class="bd">
+					<div class="name">José M. Pérez</div>
+					<div class="media twitter">
+						<div class="img">
+							<img src="http://jmperezperez.com/assets/images/twitter.svg" width="16" height="16" class="twitter-logo" alt="Twitter">
+						</div>
+						<div class="bd">
+							<a href="https://twitter.com/jmperezperez">@jmperezperez</a>
+						</div>
+					</div>
+					<a href="http://jmperezperez.com">jmperezperez.com</a>
+				</div>
+			</div>
 		</footer>
 		<script src="spotify-web-api.js"></script>
 		<script src="echonest-api.js"></script>
