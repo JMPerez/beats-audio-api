@@ -95,7 +95,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
             }).splice(0,5);
 
             text.innerHTML = '<div id="guess">Guess for track <strong>' + track.name + '</strong> by ' +
-              '<strong>' + track.artists[0].name + '</strong> is <strong>' + Math.round(top[0].tempo) + ' bpm</strong>' +
+              '<strong>' + track.artists[0].name + '</strong> is <strong>' + Math.round(top[0].tempo) + ' BPM</strong>' +
               ' with ' + top[0].count + ' samples.</div>';
 
             text.innerHTML += '<div class="small">Other options are ' +
