@@ -1,9 +1,17 @@
 <html>
 	<head>
-		<title>Find out BPM of a song</title>
+		<title>Finding out the BPM of a song on a browesr</title>
 		<link rel="stylesheet" type="text/css" href="style.css">
-	</head>
+	    <meta name="description" content="Demo of an algorithm to calculate tempo of a track using the Audio API, using the Spotify Web API to search for songs.">
+	    <meta name="twitter:card" content="summary">
+	    <meta name="twitter:site" content="@jmperezperez">
+	    <meta name="twitter:title" content="Finding out the BPM of a song on a browesr">
+	    <meta name="twitter:description" content="Demo of an algorithm to calculate tempo of a track using the Audio API, using the Spotify Web API to search for songs.">
+		</head>
 	<body>
+		<script type="text/javascript">
+    var _gaq=_gaq||[];_gaq.push(["_setAccount","UA-39254352-1"]);_gaq.push(["_trackPageview"]);(function(){var a=document.createElement("script");a.type="text/javascript";a.async=!0;a.src="http://www.google-analytics.com/ga.js";var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b)})()
+    </script>
 		<h1>Calculating BPM using Javascript and the Spotify Web API</h1>
 		<p>This demo uses the browser's Audio API to determine the tempo of a song, processing a chunk of 30 seconds of a song. For more information, read the blog post <a href="http://tech.beatport.com/2014/web-audio/beat-detection-using-web-audio/">Beat Detection Using JavaScript and the Web Audio API</a>, from where I've taken the code to perform the track analysis.</p>
 		<form>
@@ -32,7 +40,7 @@
 		</ol>
 		<hr />
 		<footer>
-			<a href="https://github.com/JMPerez/beats-audio-api">Check the code on GitHub</a> - <a href="https://twitter.com/jmperezperez">@jmperezperez</a>
+			<a href="https://github.com/JMPerez/beats-audio-api">Check the code on GitHub</a> - <a href="https://twitter.com/jmperezperez">@jmperezperez</a> - <a href="http://jmperezperez.com">jmperezperez.com</a>
 		</footer>
 		<script src="spotify-web-api.js"></script>
 		<script src="script.js"></script>

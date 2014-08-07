@@ -12,6 +12,9 @@ body {
 	margin: 0 auto;
 }
 
+a {
+	color: #2b7bb9;
+}
 h1 {
 	line-height: 1.2em;
 }
