@@ -19,7 +19,7 @@ h1 {
 	line-height: 1.2em;
 }
 
-h1, p, form, ol, svg, h2, #text {
+h1, p, form, ol, svg, h2 {
 	margin-bottom: 1em;
 }
 ol {
@@ -40,6 +40,10 @@ input[type=submit] {
 	font-size:1em;
 	display:block;
 	width: 100%
+}
+
+#guess, #text {
+	margin-bottom: 1em;
 }
 
 #play {

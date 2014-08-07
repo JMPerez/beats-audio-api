@@ -3,6 +3,7 @@
   http://tech.beatport.com/2014/web-audio/beat-detection-using-web-audio/
  */
 var spotifyApi = new SpotifyWebApi();
+var echonestApi = new EchonestApi();
 
 var queryInput = document.querySelector('#query'),
     result = document.querySelector('#result'),
@@ -10,8 +11,12 @@ var queryInput = document.querySelector('#query'),
     audioTag = document.querySelector('#audio'),
     playButton = document.querySelector('#play');
 
+
 audioTag.addEventListener('timeupdate', function() {
-  document.querySelector('#progress').setAttribute('x', (audioTag.currentTime * 100 / audioTag.duration) + '%');
+  var progressIndicator = document.querySelector('#progress');
+  if (progressIndicator) {
+    progressIndicator.setAttribute('x', (audioTag.currentTime * 100 / audioTag.duration) + '%');
+  }
 });
 
 playButton.addEventListener('click', function() {
@@ -36,7 +41,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
       request.responseType = 'arraybuffer';
       request.onload = function() {
         context.decodeAudioData(request.response, function(buffer) {
-          
+
           // Create offline context
           var offlineContext = new OfflineAudioContext(1, buffer.length, buffer.sampleRate);
 
@@ -89,15 +94,30 @@ document.querySelector('form').addEventListener('submit', function(e) {
               return intB.count - intA.count;
             }).splice(0,5);
 
-            text.innerHTML = 'Guess for track <strong>' + track.name + '</strong> by ' +
-              '<strong>' + track.artists[0].name + '</strong> is <strong>' + Math.round(top[0].tempo) + ' bpm</strong>' + 
-              ' with ' + top[0].count + ' samples. ';
+            text.innerHTML = '<div id="guess">Guess for track <strong>' + track.name + '</strong> by ' +
+              '<strong>' + track.artists[0].name + '</strong> is <strong>' + Math.round(top[0].tempo) + ' bpm</strong>' +
+              ' with ' + top[0].count + ' samples.</div>';
 
             text.innerHTML += '<div class="small">Other options are ' +
               top.slice(1).map(function(group, index) {
                 return group.tempo + ' BPM (' + group.count + ')';
               }).join(', ') +
               '</div>';
+
+            echonestApi.searchSongs(track.artists[0].name, track.name)
+              .then(function(result) {
+                if (result.response.status.code === 0 && result.response.songs.length > 0) {
+                  var songId = result.response.songs[0].id;
+                  echonestApi.getSongAudioSummary(songId)
+                    .then(function(result) {
+                      if (result.response.status.code === 0 && result.response.songs.length > 0) {
+                        var tempo = result.response.songs[0].audio_summary.tempo;
+                        text.innerHTML += '<div class="small">Other sources: The tempo according to The Echo Nest API is ' +
+                          tempo + ' BPM</div>';
+                      }
+                    });
+                }
+              });
 
             result.style.display = 'block';
           };
