@@ -1,0 +1,40 @@
+<html>
+	<head>
+		<title>Find out BPM of a song</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<h1>Calculating BPM using Javascript and the Spotify Web API</h1>
+		<p>This demo uses the browser's Audio API to determine the tempo of a song, processing a chunk of 30 seconds of a song. For more information, read the blog post <a href="http://tech.beatport.com/2014/web-audio/beat-detection-using-web-audio/">Beat Detection Using JavaScript and the Web Audio API</a>, from where I've taken the code to perform the track analysis.</p>
+		<form>
+			<input type="text" id="query" placeholder="Type the name of a track (e.g. Salsa Tequila)">
+			<input type="submit" value="Search track &amp; Calculate tempo">
+		</form>
+
+		<div id="result">
+			<div id="text"></div>
+			<div>
+				<svg width="100%" height="40" id="svg"></svg>
+				<button id="play">Play track</button>
+			</div>
+			
+			<audio id="audio"></audio>
+		</div>
+
+		<p>How this works:</p>
+		<ol>
+			<li>Search for the track on <a href="https://developer.spotify.com/web-api/search-item/">Spotify using their Web API</a></li>
+			<li>Use the 30s preview MP3 as the source for the Audio API</li>
+			<li>Apply a lowbass filter</li>
+			<li>Find peaks</li>
+			<li>Count intervals between peaks</li>
+			<li>Group them</li>
+		</ol>
+		<hr />
+		<footer>
+			<a href="https://github.com/JMPerez/beats-audio-api">Check the code on GitHub</a> - <a href="https://twitter.com/jmperezperez">@jmperezperez</a>
+		</footer>
+		<script src="spotify-web-api.js"></script>
+		<script src="script.js"></script>
+	</body>
+</html>
