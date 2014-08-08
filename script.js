@@ -14,7 +14,7 @@ var queryInput = document.querySelector('#query'),
 
 audioTag.addEventListener('timeupdate', function() {
   var progressIndicator = document.querySelector('#progress');
-  if (progressIndicator) {
+  if (progressIndicator && audioTag.duration) {
     progressIndicator.setAttribute('x', (audioTag.currentTime * 100 / audioTag.duration) + '%');
   }
 });
