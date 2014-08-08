@@ -104,18 +104,31 @@ document.querySelector('form').addEventListener('submit', function(e) {
               }).join(', ') +
               '</div>';
 
-            echonestApi.searchSongs(track.artists[0].name, track.name)
+            var printENBPM = function(tempo) {
+              text.innerHTML += '<div class="small">Other sources: The tempo according to The Echo Nest API is ' +
+                    tempo + ' BPM</div>';
+            };
+            echonestApi.getSongAudioSummaryBySpotifyUri(track.uri)
               .then(function(result) {
                 if (result.response.status.code === 0 && result.response.songs.length > 0) {
-                  var songId = result.response.songs[0].id;
-                  echonestApi.getSongAudioSummary(songId)
-                    .then(function(result) {
-                      if (result.response.status.code === 0 && result.response.songs.length > 0) {
-                        var tempo = result.response.songs[0].audio_summary.tempo;
-                        text.innerHTML += '<div class="small">Other sources: The tempo according to The Echo Nest API is ' +
-                          tempo + ' BPM</div>';
-                      }
-                    });
+                  var tempo = result.response.songs[0].audio_summary.tempo;
+                  printENBPM(tempo);
+                } else {
+                  if (result.response.status.code === 5) {
+                    // The track couldn't be found. Fallback to search in EN
+                    echonestApi.searchSongs(track.artists[0].name, track.name)
+                      .then(function(result) {
+                        if (result.response.status.code === 0 && result.response.songs.length > 0) {
+                          echonestApi.getSongAudioSummaryById(result.response.songs[0].id)
+                            .then(function(result) {
+                              if (result.response.status.code === 0 && result.response.songs.length > 0) {
+                                var tempo = result.response.songs[0].audio_summary.tempo;
+                                printENBPM(tempo);
+                              }
+                            });
+                        }
+                      });
+                  }
                 }
               });
 

@@ -121,11 +121,23 @@ var EchonestApi = (function() {
     return _checkParamsAndPerformRequest(requestData, {}, callback);
   };
 
-  Constr.prototype.getSongAudioSummary = function(songId, callback) {
+  Constr.prototype.getSongAudioSummaryById = function(songId, callback) {
     var requestData = {
       url: _baseUri + '/song/profile',
       params: {
         id: songId,
+        bucket: 'audio_summary',
+        api_key: _apiKey
+      }
+    };
+    return _checkParamsAndPerformRequest(requestData, {}, callback);
+  };
+
+  Constr.prototype.getSongAudioSummaryBySpotifyUri = function(spotifyUri, callback) {
+    var requestData = {
+      url: _baseUri + '/song/profile',
+      params: {
+        track_id: spotifyUri,
         bucket: 'audio_summary',
         api_key: _apiKey
       }
