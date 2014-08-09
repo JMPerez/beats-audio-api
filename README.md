@@ -7,4 +7,4 @@ This project uses the browser's Audio API to determine the tempo of a song, proc
 
 You can search for any track in the Spotify's catalog, and display a diagram of the detected peaks. Then, click on 'Play' to listen to the song while seeing an indicator on top of the peaks diagram. Apart from the detected tempos, the tempo provided by Echo Nest is shown.
 
-You can see a demo on [http://jmperezperez.com/beats-audio-api](http://jmperezperez.com/beats-audio-api).
+You can see a demo on [http://jmperezperez.com/beats-audio-api](http://jmperezperez.com/beats-audio-api), and I have also written a post explaining more in depth what I did in this project that you can read on [http://jmperezperez.com/bpm-detection-javascript/](http://jmperezperez.com/bpm-detection-javascript/).
