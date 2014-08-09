@@ -88,7 +88,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
 
             var intervals = countIntervalsBetweenNearbyPeaks(peaks);
 
-            var groups = groupNeighborsByTempo(intervals);
+            var groups = groupNeighborsByTempo(intervals, filteredBuffer.sampleRate);
 
             var top = groups.sort(function(intA, intB) {
               return intB.count - intA.count;
@@ -177,12 +177,12 @@ function countIntervalsBetweenNearbyPeaks(peaks) {
 }
 
 // Function used to return a histogram of tempo candidates.
-function groupNeighborsByTempo(intervalCounts) {
+function groupNeighborsByTempo(intervalCounts, sampleRate) {
   var tempoCounts = [];
   intervalCounts.forEach(function(intervalCount, i) {
     if (intervalCount.interval !== 0) {
       // Convert an interval to tempo
-      var theoreticalTempo = 60 / (intervalCount.interval / 44100 );
+      var theoreticalTempo = 60 / (intervalCount.interval / sampleRate );
 
       // Adjust the tempo to fit within the 90-180 BPM range
       while (theoreticalTempo < 90) theoreticalTempo *= 2;
