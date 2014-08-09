@@ -115,7 +115,8 @@ var EchonestApi = (function() {
       params: {
         artist: artist,
         title: title,
-        api_key: _apiKey
+        api_key: _apiKey,
+        results: 1
       }
     };
     return _checkParamsAndPerformRequest(requestData, {}, callback);
