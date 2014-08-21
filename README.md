@@ -9,7 +9,7 @@ You can see a **demo** on [http://jmperezperez.com/beats-audio-api](http://jmper
 
 You can search for any track in the Spotify's catalog, and display a diagram of the detected peaks. Then, click on 'Play' to listen to the song while seeing an indicator on top of the peaks diagram. Apart from the detected tempos, the tempo provided by Echo Nest is shown.
 
-![Screenshot](http://jmperezperez.com/assets/images/posts/bpm-detection-example.png)
+<img align="center" src="http://jmperezperez.com/assets/images/posts/bpm-detection-example.png" alt="Screenshot of the BPM detector">
 
 ## Run it yourself
 
