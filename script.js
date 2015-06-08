@@ -35,7 +35,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
       var previewUrl = track.preview_url;
       audioTag.src = track.preview_url;
 
-      var context = new AudioContext();
+      var context = new (window.AudioContext || window.webkitAudioContext) ();
       var request = new XMLHttpRequest();
       request.open('GET', previewUrl, true);
       request.responseType = 'arraybuffer';
@@ -43,7 +43,8 @@ document.querySelector('form').addEventListener('submit', function(e) {
         context.decodeAudioData(request.response, function(buffer) {
 
           // Create offline context
-          var offlineContext = new OfflineAudioContext(1, buffer.length, buffer.sampleRate);
+          var OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+          var offlineContext = new OfflineContext(1, buffer.length, buffer.sampleRate);
 
           // Create buffer source
           var source = offlineContext.createBufferSource();
