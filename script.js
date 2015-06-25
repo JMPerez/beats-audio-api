@@ -39,11 +39,12 @@ document.querySelector('form').addEventListener('submit', function(e) {
       request.open('GET', previewUrl, true);
       request.responseType = 'arraybuffer';
       request.onload = function() {
-        context.decodeAudioData(request.response, function(buffer) {
 
-          // Create offline context
-          var OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-          var offlineContext = new OfflineContext(1, buffer.length, buffer.sampleRate);
+        // Create offline context
+        var OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        var offlineContext = new OfflineContext(1, 2, 44100);
+
+        offlineContext.decodeAudioData(request.response, function(buffer) {
 
           // Create buffer source
           var source = offlineContext.createBufferSource();
@@ -60,95 +61,86 @@ document.querySelector('form').addEventListener('submit', function(e) {
           // Schedule the song to start playing at time:0
           source.start(0);
 
-          // Render the song
-          offlineContext.startRendering();
+          var peaks,
+              initialThresold = 0.9,
+              thresold = initialThresold,
+              minThresold = 0.3,
+              minPeaks = 30;
 
-          // Act on the result
-          offlineContext.oncomplete = function(e) {
-            // Filtered buffer!
-            var filteredBuffer = e.renderedBuffer;
+          do {
+            peaks = getPeaksAtThreshold(buffer.getChannelData(0), thresold);
+            thresold -= 0.05;
+          } while (peaks.length < minPeaks && thresold >= minThresold);
 
-            var peaks,
-                initialThresold = 0.9,
-                thresold = initialThresold,
-                minThresold = 0.3,
-                minPeaks = 30;
-
-            do {
-              peaks = getPeaksAtThreshold(e.renderedBuffer.getChannelData(0), thresold);
-              thresold -= 0.05;
-            } while (peaks.length < minPeaks && thresold >= minThresold);
-
-            var svg = document.querySelector('#svg');
-            svg.innerHTML = '';
-            var svgNS = 'http://www.w3.org/2000/svg';
-            peaks.forEach(function(peak) {
-              var rect = document.createElementNS(svgNS, 'rect');
-              rect.setAttributeNS(null, 'x', (100 * peak / e.renderedBuffer.length) + '%');
-              rect.setAttributeNS(null, 'y', 0);
-              rect.setAttributeNS(null, 'width', 1);
-              rect.setAttributeNS(null, 'height', '100%');
-              svg.appendChild(rect);
-            });
-
+          var svg = document.querySelector('#svg');
+          svg.innerHTML = '';
+          var svgNS = 'http://www.w3.org/2000/svg';
+          peaks.forEach(function(peak) {
             var rect = document.createElementNS(svgNS, 'rect');
-            rect.setAttributeNS(null, 'id', 'progress');
+            rect.setAttributeNS(null, 'x', (100 * peak / buffer.length) + '%');
             rect.setAttributeNS(null, 'y', 0);
             rect.setAttributeNS(null, 'width', 1);
             rect.setAttributeNS(null, 'height', '100%');
             svg.appendChild(rect);
+          });
 
-            svg.innerHTML = svg.innerHTML;  // force repaint in some browsers
+          var rect = document.createElementNS(svgNS, 'rect');
+          rect.setAttributeNS(null, 'id', 'progress');
+          rect.setAttributeNS(null, 'y', 0);
+          rect.setAttributeNS(null, 'width', 1);
+          rect.setAttributeNS(null, 'height', '100%');
+          svg.appendChild(rect);
 
-            var intervals = countIntervalsBetweenNearbyPeaks(peaks);
+          svg.innerHTML = svg.innerHTML;  // force repaint in some browsers
 
-            var groups = groupNeighborsByTempo(intervals, filteredBuffer.sampleRate);
+          var intervals = countIntervalsBetweenNearbyPeaks(peaks);
 
-            var top = groups.sort(function(intA, intB) {
-              return intB.count - intA.count;
-            }).splice(0,5);
+          var groups = groupNeighborsByTempo(intervals, buffer.sampleRate);
 
-            text.innerHTML = '<div id="guess">Guess for track <strong>' + track.name + '</strong> by ' +
-              '<strong>' + track.artists[0].name + '</strong> is <strong>' + Math.round(top[0].tempo) + ' BPM</strong>' +
-              ' with ' + top[0].count + ' samples.</div>';
+          var top = groups.sort(function(intA, intB) {
+            return intB.count - intA.count;
+          }).splice(0,5);
 
-            text.innerHTML += '<div class="small">Other options are ' +
-              top.slice(1).map(function(group, index) {
-                return group.tempo + ' BPM (' + group.count + ')';
-              }).join(', ') +
-              '</div>';
+          text.innerHTML = '<div id="guess">Guess for track <strong>' + track.name + '</strong> by ' +
+            '<strong>' + track.artists[0].name + '</strong> is <strong>' + Math.round(top[0].tempo) + ' BPM</strong>' +
+            ' with ' + top[0].count + ' samples.</div>';
 
-            var printENBPM = function(tempo) {
-              text.innerHTML += '<div class="small">Other sources: The tempo according to The Echo Nest API is ' +
-                    tempo + ' BPM</div>';
-            };
-            echonestApi.getSongAudioSummaryBySpotifyUri(track.uri)
-              .then(function(result) {
-                if (result.response.status.code === 0 && result.response.songs.length > 0) {
-                  var tempo = result.response.songs[0].audio_summary.tempo;
-                  printENBPM(tempo);
-                } else {
-                  if (result.response.status.code === 5) {
-                    // The track couldn't be found. Fallback to search in EN
-                    echonestApi.searchSongs(track.artists[0].name, track.name)
-                      .then(function(result) {
-                        if (result.response.status.code === 0 && result.response.songs.length > 0) {
-                          echonestApi.getSongAudioSummaryById(result.response.songs[0].id)
-                            .then(function(result) {
-                              if (result.response.status.code === 0 && result.response.songs.length > 0) {
-                                var tempo = result.response.songs[0].audio_summary.tempo;
-                                printENBPM(tempo);
-                              }
-                            });
-                        }
-                      });
-                  }
-                }
-              });
+          text.innerHTML += '<div class="small">Other options are ' +
+            top.slice(1).map(function(group, index) {
+              return group.tempo + ' BPM (' + group.count + ')';
+            }).join(', ') +
+            '</div>';
 
-            result.style.display = 'block';
+          var printENBPM = function(tempo) {
+            text.innerHTML += '<div class="small">Other sources: The tempo according to The Echo Nest API is ' +
+                  tempo + ' BPM</div>';
           };
-        }, function() {});
+          echonestApi.getSongAudioSummaryBySpotifyUri(track.uri)
+            .then(function(result) {
+              if (result.response.status.code === 0 && result.response.songs.length > 0) {
+                var tempo = result.response.songs[0].audio_summary.tempo;
+                printENBPM(tempo);
+              } else {
+                if (result.response.status.code === 5) {
+                  // The track couldn't be found. Fallback to search in EN
+                  echonestApi.searchSongs(track.artists[0].name, track.name)
+                    .then(function(result) {
+                      if (result.response.status.code === 0 && result.response.songs.length > 0) {
+                        echonestApi.getSongAudioSummaryById(result.response.songs[0].id)
+                          .then(function(result) {
+                            if (result.response.status.code === 0 && result.response.songs.length > 0) {
+                              var tempo = result.response.songs[0].audio_summary.tempo;
+                              printENBPM(tempo);
+                            }
+                          });
+                      }
+                    });
+                }
+              }
+            });
+
+          result.style.display = 'block';
+        });
       };
       request.send();
     });
