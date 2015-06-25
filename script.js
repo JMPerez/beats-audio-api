@@ -11,7 +11,6 @@ var queryInput = document.querySelector('#query'),
     audioTag = document.querySelector('#audio'),
     playButton = document.querySelector('#play');
 
-
 audioTag.addEventListener('timeupdate', function() {
   var progressIndicator = document.querySelector('#progress');
   if (progressIndicator && audioTag.duration) {
@@ -82,10 +81,24 @@ document.querySelector('form').addEventListener('submit', function(e) {
 
             var svg = document.querySelector('#svg');
             svg.innerHTML = '';
+            var svgNS = 'http://www.w3.org/2000/svg';
             peaks.forEach(function(peak) {
-              svg.innerHTML += '<rect x="' + (100 * peak / e.renderedBuffer.length) + '%" y="0" width="1" height="100%"></rect>';
+              var rect = document.createElementNS(svgNS, 'rect');
+              rect.setAttributeNS(null, 'x', (100 * peak / e.renderedBuffer.length) + '%');
+              rect.setAttributeNS(null, 'y', 0);
+              rect.setAttributeNS(null, 'width', 1);
+              rect.setAttributeNS(null, 'height', '100%');
+              svg.appendChild(rect);
             });
-            svg.innerHTML +='<rect id="progress" y="0" width="1" height="100%"></rect>';
+
+            var rect = document.createElementNS(svgNS, 'rect');
+            rect.setAttributeNS(null, 'id', 'progress');
+            rect.setAttributeNS(null, 'y', 0);
+            rect.setAttributeNS(null, 'width', 1);
+            rect.setAttributeNS(null, 'height', '100%');
+            svg.appendChild(rect);
+
+            svg.innerHTML = svg.innerHTML;  // force repaint in some browsers
 
             var intervals = countIntervalsBetweenNearbyPeaks(peaks);
 
