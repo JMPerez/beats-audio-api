@@ -11,13 +11,6 @@ var queryInput = document.querySelector('#query'),
     audioTag = document.querySelector('#audio'),
     playButton = document.querySelector('#play');
 
-audioTag.addEventListener('timeupdate', function() {
-  var progressIndicator = document.querySelector('#progress');
-  if (progressIndicator && audioTag.duration) {
-    progressIndicator.setAttribute('x', (audioTag.currentTime * 100 / audioTag.duration) + '%');
-  }
-});
-
 function updateProgressState() {
   if (audioTag.paused) {
     return;
