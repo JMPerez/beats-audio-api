@@ -18,8 +18,35 @@ audioTag.addEventListener('timeupdate', function() {
   }
 });
 
+function updateProgressState() {
+  if (audioTag.paused) {
+    return;
+  }
+  var progressIndicator = document.querySelector('#progress');
+  if (progressIndicator && audioTag.duration) {
+    progressIndicator.setAttribute('x', (audioTag.currentTime * 100 / audioTag.duration) + '%');
+  }
+  requestAnimationFrame(updateProgressState);
+}
+
+audioTag.addEventListener('play', updateProgressState);
+audioTag.addEventListener('playing', updateProgressState);
+
+function updatePlayLabel() {
+  playButton.innerHTML = audioTag.paused ? 'Play track' : 'Pause track';
+}
+
+audioTag.addEventListener('play', updatePlayLabel);
+audioTag.addEventListener('playing', updatePlayLabel);
+audioTag.addEventListener('pause', updatePlayLabel);
+audioTag.addEventListener('ended', updatePlayLabel);
+
 playButton.addEventListener('click', function() {
-  audioTag.play();
+  if (audioTag.paused) {
+    audioTag.play();
+  } else {
+    audioTag.pause();
+  }
 });
 
 result.style.display = 'none';
