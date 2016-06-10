@@ -1,7 +1,7 @@
 Calculating BPM using Javascript and the Spotify Web API
 ========================================================
 
-This project uses the browser's Audio API to guess the tempo of a song, processing a chunk of 30 seconds of music. For more information, read the blog post [Beat Detection Using JavaScript and the Web Audio API](http://tech.beatport.com/2014/web-audio/beat-detection-using-web-audio), from where I've taken the code to perform the track analysis. I have also written a [post explaining the project more in depth](https://jmperezperez.com/bpm-detection-javascript/).
+This project uses the browser's Audio API to guess the tempo of a song, processing a chunk of 30 seconds of music. For more information, read the blog post [Beat Detection Using JavaScript and the Web Audio API](http://joesul.li/van/beat-detection-using-web-audio/), from where I've taken the code to perform the track analysis. I have also written a [post explaining the project more in depth](https://jmperezperez.com/bpm-detection-javascript/).
 
 ## Demo
 
