@@ -3,7 +3,9 @@
   http://tech.beatport.com/2014/web-audio/beat-detection-using-web-audio/
  */
 var spotifyApi = new SpotifyWebApi();
-var echonestApi = new EchonestApi();
+spotifyApi.getToken().then(function(response) {
+  spotifyApi.setAccessToken(response.token);
+});
 
 var queryInput = document.querySelector('#query'),
     result = document.querySelector('#result'),
@@ -132,31 +134,12 @@ document.querySelector('form').addEventListener('submit', function(e) {
             '</div>';
 
           var printENBPM = function(tempo) {
-            text.innerHTML += '<div class="small">Other sources: The tempo according to The Echo Nest API is ' +
+            text.innerHTML += '<div class="small">The tempo according to Spotify is ' +
                   tempo + ' BPM</div>';
           };
-          echonestApi.getSongAudioSummaryBySpotifyUri(track.uri)
+          spotifyApi.getAudioFeaturesForTrack(track.id)
             .then(function(result) {
-              if (result.response.status.code === 0 && result.response.songs.length > 0) {
-                var tempo = result.response.songs[0].audio_summary.tempo;
-                printENBPM(tempo);
-              } else {
-                if (result.response.status.code === 5) {
-                  // The track couldn't be found. Fallback to search in EN
-                  echonestApi.searchSongs(track.artists[0].name, track.name)
-                    .then(function(result) {
-                      if (result.response.status.code === 0 && result.response.songs.length > 0) {
-                        echonestApi.getSongAudioSummaryById(result.response.songs[0].id)
-                          .then(function(result) {
-                            if (result.response.status.code === 0 && result.response.songs.length > 0) {
-                              var tempo = result.response.songs[0].audio_summary.tempo;
-                              printENBPM(tempo);
-                            }
-                          });
-                      }
-                    });
-                }
-              }
+              printENBPM(result.tempo);
             });
 
           result.style.display = 'block';
