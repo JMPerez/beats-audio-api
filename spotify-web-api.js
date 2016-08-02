@@ -2,6 +2,8 @@ var SpotifyWebApi = (function() {
 
   'use strict';
   var _baseUri = 'https://api.spotify.com/v1';
+  var _baseTokenUri = 'https://spotify-web-api-token.herokuapp.com';
+  var _accessToken = null;
 
   var _promiseProvider = function(promiseFunction) {
     return new window.Promise(promiseFunction);
@@ -32,7 +34,9 @@ var SpotifyWebApi = (function() {
       } else {
         req.open(type, _buildUrl(requestData.url));
       }
-
+      if (_accessToken) {
+        req.setRequestHeader('Authorization', 'Bearer ' + _accessToken);
+      }
       req.onreadystatechange = function() {
         if (req.readyState === 4) {
           var data = null;
@@ -108,6 +112,17 @@ var SpotifyWebApi = (function() {
   };
 
   /**
+   * Sets the access token to be used.
+   * See [the Authorization Guide](https://developer.spotify.com/web-api/authorization-guide/) on
+   * the Spotify Developer site for more information about obtaining an access token.
+   * @param {string} accessToken The access token
+   * @return {void}
+   */
+  Constr.prototype.setAccessToken = function(accessToken) {
+    _accessToken = accessToken;
+  };
+
+  /**
    * Fetches tracks from the Spotify catalog according to a query.
    * See [Search for an Item](https://developer.spotify.com/web-api/search-item/) on
    * the Spotify Developer site for more information about the endpoint.
@@ -125,6 +140,33 @@ var SpotifyWebApi = (function() {
       }
     };
     return _checkParamsAndPerformRequest(requestData, options, callback);
+  };
+
+  /**
+   * Get audio features for a single track identified by its unique Spotify ID.
+   * See [Get Audio Features for a Track](https://developer.spotify.com/web-api/get-audio-features/) on
+   * the Spotify Developer site for more information about the endpoint.
+   * @param {string} trackId The id of the track. If you know the Spotify URI it is easy
+   * to find the track id (e.g. spotify:track:<here_is_the_track_id>)
+   * @param {function(Object,Object)} callback An optional callback that receives 2 parameters. The first
+   * one is the error object (null if no error), and the second is the value if the request succeeded.
+   * @return {Object} Null if a callback is provided, a `Promise` object otherwise
+   */
+  Constr.prototype.getAudioFeaturesForTrack = function(trackId, callback) {
+    var requestData = {
+      url: _baseUri + '/audio-features/' + trackId
+    };
+    return _checkParamsAndPerformRequest(requestData, {}, callback);
+  };
+
+  /**
+   * Obtains a token to be used against the Spotify Web API
+   */
+  Constr.prototype.getToken = function(callback) {
+    var requestData = {
+      url: _baseTokenUri + '/token'
+    };
+    return _checkParamsAndPerformRequest(requestData, {}, callback);
   };
 
   return Constr;

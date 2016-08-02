@@ -7,11 +7,10 @@ This project uses the browser's Audio API to guess the tempo of a song, processi
 
 You can see a **demo** on [https://jmperezperez.com/beats-audio-api](https://jmperezperez.com/beats-audio-api)
 
-You can search for any track in the Spotify's catalog, and display a diagram of the detected peaks. Then, click on 'Play' to listen to the song while seeing an indicator on top of the peaks diagram. Apart from the detected tempos, the tempo provided by Echo Nest is shown.
+You can search for any track in the Spotify's catalog, and display a diagram of the detected peaks. Then, click on 'Play' to listen to the song while seeing an indicator on top of the peaks diagram. Apart from the detected tempos, the tempo provided by Spotify is shown.
 
 <img align="center" src="https://jmperezperez.com/assets/images/posts/bpm-detection-example.png" alt="Screenshot of the BPM detector">
 
 ## Run it yourself
 
-There are no dependencies to install, and you don't need to register any app on Spotify or Echo Nest. Just clone the project and start a server.
-
+There are no dependencies to install, and you don't need to register any app on Spotify. Just clone the project and start a server.

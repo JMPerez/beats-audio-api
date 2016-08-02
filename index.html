@@ -18,9 +18,9 @@
     	</script>
 		<h1>Calculating BPM using Javascript and the Spotify Web API</h1>
 		<p>This demo uses the browser's <strong>Audio API</strong> to determine the tempo of a song, processing a chunk of 30 seconds of a song.</p>
-		<p>For more information, read the blog post <a href="http://joesul.li/van/beat-detection-using-web-audio/">Beat Detection Using JavaScript and the Web Audio API</a>, from where I've taken the code to perform the track analysis, 
+		<p>For more information, read the blog post <a href="http://joesul.li/van/beat-detection-using-web-audio/">Beat Detection Using JavaScript and the Web Audio API</a>, from where I've taken the code to perform the track analysis,
 			and <a href="https://jmperezperez.com/bpm-detection-javascript/">my blog post</a> where I explain some changes I made to
-			the original algorithm and how I used Spotify's and The Echo Nest's APIs to find and match tracks.
+			the original algorithm and how I used Spotify's APIs to find and match tracks.
 		</p>
 		<form>
 			<input type="text" id="query" placeholder="Type the name of a track (e.g. Beyonce - Baby Boy)">
@@ -47,12 +47,7 @@
 			<li>Group them</li>
 		</ol>
 		<footer>
-			<h3>APIs used</h3>
-			<p>This project uses these public APIs:</p>
-			<ul>
-				<li><a href="https://developer.spotify.com/web-api/">Spotify Web API</a></li>
-				<li><a href="http://developer.echonest.com/docs/v4">Echo Nest API</a></li>
-			</ul>
+			<h3>Source Code</h3>
 			<p>You can <a href="https://github.com/JMPerez/beats-audio-api">check out the code on GitHub</a>.</p>
 		</footer>
 		<footer class="about">
@@ -76,7 +71,6 @@
 			</div>
 		</footer>
 		<script src="spotify-web-api.js"></script>
-		<script src="echonest-api.js"></script>
 		<script src="script.js"></script>
 	</body>
 </html>
