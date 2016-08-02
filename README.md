@@ -9,7 +9,7 @@ You can see a **demo** on [https://jmperezperez.com/beats-audio-api](https://jmp
 
 You can search for any track in the Spotify's catalog, and display a diagram of the detected peaks. Then, click on 'Play' to listen to the song while seeing an indicator on top of the peaks diagram. Apart from the detected tempos, the tempo provided by Spotify is shown.
 
-<img align="center" src="https://jmperezperez.com/assets/images/posts/bpm-detection-example.png" alt="Screenshot of the BPM detector">
+<img align="center" src="https://raw.githubusercontent.com/JMPerez/jmperez.github.com/master/assets/images/posts/bpm-detection-example.png" alt="Screenshot of the BPM detector">
 
 ## Run it yourself
 
