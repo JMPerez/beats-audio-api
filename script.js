@@ -56,7 +56,6 @@ document.querySelector('form').addEventListener('submit', function(e) {
       var previewUrl = track.preview_url;
       audioTag.src = track.preview_url;
 
-      var context = new (window.AudioContext || window.webkitAudioContext) ();
       var request = new XMLHttpRequest();
       request.open('GET', previewUrl, true);
       request.responseType = 'arraybuffer';
@@ -64,7 +63,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
 
         // Create offline context
         var OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-        var offlineContext = new OfflineContext(1, 2, 44100);
+        var offlineContext = new OfflineContext(2, 30 * 44100, 44100);
 
         offlineContext.decodeAudioData(request.response, function(buffer) {
 
@@ -72,34 +71,52 @@ document.querySelector('form').addEventListener('submit', function(e) {
           var source = offlineContext.createBufferSource();
           source.buffer = buffer;
 
-          // Create filter
-          var filter = offlineContext.createBiquadFilter();
-          filter.type = "lowpass";
+          // Beats, or kicks, generally occur around the 100 to 150 hz range.
+          // Below this is often the bassline.  So let's focus just on that.
 
-          // Pipe the song into the filter, and the filter into the offline context
-          source.connect(filter);
-          filter.connect(offlineContext.destination);
+          // First a lowpass to remove most of the song.
 
-          // Schedule the song to start playing at time:0
+          var lowpass = offlineContext.createBiquadFilter();
+          lowpass.type = "lowpass";
+          lowpass.frequency.value = 150;
+          lowpass.Q.value = 1;
+
+          // Run the output of the source through the low pass.
+
+          source.connect(lowpass);
+
+          // Now a highpass to remove the bassline.
+
+          var highpass = offlineContext.createBiquadFilter();
+          highpass.type = "highpass";
+          highpass.frequency.value = 100;
+          highpass.Q.value = 1;
+
+          // Run the output of the lowpass through the highpass.
+
+          lowpass.connect(highpass);
+
+          // Run the output of the highpass through our offline context.
+
+          highpass.connect(offlineContext.destination);
+
+          // Start the source, and render the output into the offline conext.
+
           source.start(0);
+          offlineContext.startRendering();
+        });
 
-          var peaks,
-              initialThresold = 0.9,
-              thresold = initialThresold,
-              minThresold = 0.3,
-              minPeaks = 30;
-
-          do {
-            peaks = getPeaksAtThreshold(buffer.getChannelData(0), thresold);
-            thresold -= 0.05;
-          } while (peaks.length < minPeaks && thresold >= minThresold);
+        offlineContext.oncomplete = function(e) {
+          var buffer = e.renderedBuffer;
+          var peaks = getPeaks([buffer.getChannelData(0), buffer.getChannelData(1)]);
+          var groups = getIntervals(peaks);
 
           var svg = document.querySelector('#svg');
           svg.innerHTML = '';
           var svgNS = 'http://www.w3.org/2000/svg';
           peaks.forEach(function(peak) {
             var rect = document.createElementNS(svgNS, 'rect');
-            rect.setAttributeNS(null, 'x', (100 * peak / buffer.length) + '%');
+            rect.setAttributeNS(null, 'x', (100 * peak.position / buffer.length) + '%');
             rect.setAttributeNS(null, 'y', 0);
             rect.setAttributeNS(null, 'width', 1);
             rect.setAttributeNS(null, 'height', '100%');
@@ -113,11 +130,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
           rect.setAttributeNS(null, 'height', '100%');
           svg.appendChild(rect);
 
-          svg.innerHTML = svg.innerHTML;  // force repaint in some browsers
-
-          var intervals = countIntervalsBetweenNearbyPeaks(peaks);
-
-          var groups = groupNeighborsByTempo(intervals, buffer.sampleRate);
+          svg.innerHTML = svg.innerHTML; // force repaint in some browsers
 
           var top = groups.sort(function(intA, intB) {
             return intB.count - intA.count;
@@ -143,72 +156,97 @@ document.querySelector('form').addEventListener('submit', function(e) {
             });
 
           result.style.display = 'block';
-        });
+        };
       };
       request.send();
     });
 });
 
-// Function to identify peaks
-function getPeaksAtThreshold(data, threshold) {
-  var peaksArray = [];
-  var length = data.length;
-  for(var i = 0; i < length;) {
-    if (data[i] > threshold) {
-      peaksArray.push(i);
-      // Skip forward ~ 1/4s to get past this peak.
-      i += 10000;
-    }
-    i++;
+
+function getPeaks(data) {
+
+  // What we're going to do here, is to divide up our audio into parts.
+
+  // We will then identify, for each part, what the loudest sample is in that
+  // part.
+
+  // It's implied that that sample would represent the most likely 'beat' 
+  // within that part.
+
+  // Each part is 0.5 seconds long - or 22,050 samples.
+
+  // This will give us 60 'beats' - we will only take the loudest half of
+  // those.
+
+  // This will allow us to ignore breaks, and allow us to address tracks with
+  // a BPM below 120.
+
+  var partSize = 22050,
+      parts = data[0].length / partSize, 
+      peaks = [];
+
+  for(i = 0; i < parts; i++) {
+      var max = 0;
+      for(j = i * partSize; j < (i + 1) * partSize; j++) {
+          volume = Math.max(Math.abs(data[0][j]), Math.abs(data[1][j]));
+          if(!max || (volume > max.volume)) {
+            max = {
+              position: j,
+              volume: volume
+            };
+          }
+      }
+      peaks.push(max);
   }
-  return peaksArray;
+
+  // We then sort the peaks according to volume...
+
+  peaks.sort(function(a, b) {
+    return (b.volume > a.volume) ? 1 : ((a.volume > b.volume) ? -1 : 0);
+  });
+
+  // ...take the loundest half of those...
+
+  peaks = peaks.splice(0, peaks.length * 0.5);
+
+  // ...and re-sort it back based on position.
+
+  peaks.sort(function(a, b) {
+    return (a.position > b.position) ? 1 : ((b.position > a.position) ? -1 : 0);
+  });
+
+  return peaks;
 }
 
-// Function used to return a histogram of peak intervals
-function countIntervalsBetweenNearbyPeaks(peaks) {
-  var intervalCounts = [];
+function getIntervals(peaks) {
+
+  // What we now do is get all of our peaks, and then measure the distance to
+  // other peaks, to create intervals.  Then based on the distance between 
+  // those peaks (the distance of the intervals) we can calculate the BPM of
+  // that particular interval.
+
+  // The interval that is seen the most should have the BPM that corresponds
+  // to the track itself.
+
+  var groups = [];
+
   peaks.forEach(function(peak, index) {
-    for(var i = 0; i < 10; i++) {
-      var interval = peaks[index + i] - peak;
-      var foundInterval = intervalCounts.some(function(intervalCount) {
-        if (intervalCount.interval === interval)
-          return intervalCount.count++;
-      });
-      if (!foundInterval) {
-        intervalCounts.push({
-          interval: interval,
-          count: 1
-        });
+    for(var i = 1; (index + i) < peaks.length && i < 10; i++) {
+      var group = {
+        tempo: (60 * 44100) / (peaks[index + i].position - peak.position),
+        count: 1
+      };
+      
+      while (group.tempo < 90)  group.tempo *= 2;
+      while (group.tempo > 180) group.tempo /= 2;
+      group.tempo = Math.round(group.tempo);
+
+      if (!(groups.some(function(interval) {
+        return (interval.tempo === group.tempo ? interval.count++ : 0);
+      }))) {
+        groups.push(group);
       }
     }
   });
-  return intervalCounts;
-}
-
-// Function used to return a histogram of tempo candidates.
-function groupNeighborsByTempo(intervalCounts, sampleRate) {
-  var tempoCounts = [];
-  intervalCounts.forEach(function(intervalCount, i) {
-    if (intervalCount.interval !== 0) {
-      // Convert an interval to tempo
-      var theoreticalTempo = 60 / (intervalCount.interval / sampleRate );
-
-      // Adjust the tempo to fit within the 90-180 BPM range
-      while (theoreticalTempo < 90) theoreticalTempo *= 2;
-      while (theoreticalTempo > 180) theoreticalTempo /= 2;
-
-      theoreticalTempo = Math.round(theoreticalTempo);
-      var foundTempo = tempoCounts.some(function(tempoCount) {
-        if (tempoCount.tempo === theoreticalTempo)
-          return tempoCount.count += intervalCount.count;
-      });
-      if (!foundTempo) {
-        tempoCounts.push({
-          tempo: theoreticalTempo,
-          count: intervalCount.count
-        });
-      }
-    }
-  });
-  return tempoCounts;
+  return groups;
 }
